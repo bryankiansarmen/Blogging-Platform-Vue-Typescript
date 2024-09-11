@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import axios from "axios";
 
-const registerForm = ref<{ username: string; email: string; password: string }>(
-  {
-    username: "",
-    email: "",
-    password: "",
+const registerForm = ref<{
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}>({
+  username: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+});
+
+const handleRegistrationSubmit = async () => {
+  if (registerForm.value.password !== registerForm.value.confirmPassword) {
+    console.log("Password is not match!");
+    return;
   }
-);
 
-const handleRegistrationSubmit = () => {
   const newUser = {
     username: registerForm.value.username,
     email: registerForm.value.email,
@@ -17,6 +27,21 @@ const handleRegistrationSubmit = () => {
   };
 
   console.log(newUser);
+
+  try {
+    const response = await axios({
+      url: "http://192.168.4.35:8000/api/v1/users",
+      method: "post",
+      data: newUser,
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 
@@ -63,6 +88,7 @@ const handleRegistrationSubmit = () => {
           <div class="form-group">
             <label for="confirm-password">Confirm Password</label>
             <input
+              v-model="registerForm.confirmPassword"
               type="password"
               id="confirm-password"
               name="confirm-password"
@@ -86,7 +112,6 @@ const handleRegistrationSubmit = () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  border: 1px solid red;
 }
 .card-container {
   display: flex;
