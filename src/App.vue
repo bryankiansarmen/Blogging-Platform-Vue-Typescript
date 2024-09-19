@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import Registration from "./components/Registration.vue";
+import Navigation from "./components/Navigation.vue";
 </script>
 
 <template>
-  <Registration />
+  <Navigation />
+  <RouterView />
 </template>
