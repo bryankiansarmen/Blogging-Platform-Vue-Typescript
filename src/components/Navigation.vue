@@ -1,13 +1,36 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterLink, useRoute } from "vue-router";
+
+const isActiveLink = (routePath: string) => {
+  const route = useRoute();
+  return route.path === routePath;
+};
+</script>
 
 <template>
   <nav class="navbar">
     <ul class="nav-left">
-      <li><a href="#">Home</a></li>
+      <li>
+        <RouterLink to="/" :class="isActiveLink('/') ? 'active' : null"
+          >Home</RouterLink
+        >
+      </li>
     </ul>
     <ul class="nav-right">
-      <li><a href="#">Login</a></li>
-      <li><a href="#">Register</a></li>
+      <li>
+        <RouterLink
+          to="/login"
+          :class="isActiveLink('/login') ? 'active' : null"
+          >Login</RouterLink
+        >
+      </li>
+      <li>
+        <RouterLink
+          to="/register"
+          :class="isActiveLink('/register') ? 'active' : null"
+          >Register</RouterLink
+        >
+      </li>
     </ul>
   </nav>
 </template>
@@ -53,5 +76,9 @@
 
 .navbar ul li a:hover {
   background-color: #0056b3; /* Darker blue on hover */
+}
+
+.active {
+  background-color: #0056b3;
 }
 </style>
