@@ -5,45 +5,36 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const registerForm = ref<{
-  username: string;
+const loginForm = ref<{
   email: string;
   password: string;
-  confirmPassword: string;
 }>({
-  username: "",
   email: "",
   password: "",
-  confirmPassword: "",
 });
 
-const handleRegistrationSubmit = async () => {
-  if (registerForm.value.password !== registerForm.value.confirmPassword) {
-    return;
-  }
-
-  const newUser = {
-    username: registerForm.value.username,
-    email: registerForm.value.email,
-    password: registerForm.value.password,
+const handleLoginSubmit = async () => {
+  const userCredential = {
+    email: loginForm.value.email,
+    password: loginForm.value.password,
   };
 
-  console.log(newUser);
+  console.log(userCredential);
 
-  try {
-    await axios({
-      url: "http://192.168.4.35:8000/api/v1/users",
-      method: "post",
-      data: newUser,
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
+  //   try {
+  //     await axios({
+  //       url: "http://192.168.4.35:8000/api/v1/user/login",
+  //       method: "get",
+  //       data: userCredential,
+  //       headers: {
+  //         "Content-type": "application/json",
+  //       },
+  //     });
 
-    router.push("/login");
-  } catch (error) {
-    console.log(error);
-  }
+  //     router.push("/");
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
 };
 </script>
 
@@ -51,24 +42,12 @@ const handleRegistrationSubmit = async () => {
   <div class="flex-container">
     <div class="card-container">
       <div class="card">
-        <h2>Register</h2>
-
-        <form class="card-form" @submit.prevent="handleRegistrationSubmit">
-          <div class="form-group">
-            <label for="name">Username</label>
-            <input
-              v-model="registerForm.username"
-              type="text"
-              id="username"
-              name="username"
-              placeholder="Enter your username"
-              required
-            />
-          </div>
+        <h2>Login</h2>
+        <form class="card-form" @submit.prevent="handleLoginSubmit">
           <div class="form-group">
             <label for="email">Email</label>
             <input
-              v-model="registerForm.email"
+              v-model="loginForm.email"
               type="email"
               id="email"
               name="email"
@@ -79,7 +58,7 @@ const handleRegistrationSubmit = async () => {
           <div class="form-group">
             <label for="password">Password</label>
             <input
-              v-model="registerForm.password"
+              v-model="loginForm.password"
               type="password"
               id="password"
               name="password"
@@ -87,22 +66,10 @@ const handleRegistrationSubmit = async () => {
               required
             />
           </div>
-          <div class="form-group">
-            <label for="confirm-password">Confirm Password</label>
-            <input
-              v-model="registerForm.confirmPassword"
-              type="password"
-              id="confirm-password"
-              name="confirm-password"
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
           <button type="submit" class="card-button">Submit</button>
         </form>
-
         <br />
-        <p>Already have an account? <a href="#">Login</a></p>
+        <p>Don't have an account? <a href="#">Register</a></p>
       </div>
     </div>
   </div>
