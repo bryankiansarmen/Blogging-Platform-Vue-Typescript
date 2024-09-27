@@ -4,6 +4,7 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const responseMessage = ref<string>("");
 
 const loginForm = ref<{
   email: string;
@@ -19,22 +20,29 @@ const handleLoginSubmit = async () => {
     password: loginForm.value.password,
   };
 
-  console.log(userCredential);
+  try {
+    await axios({
+      url: "http://192.168.4.35:8000/api/v1/users/login",
+      method: "post",
+      data: userCredential,
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
 
-  //   try {
-  //     await axios({
-  //       url: "http://192.168.4.35:8000/api/v1/user/login",
-  //       method: "get",
-  //       data: userCredential,
-  //       headers: {
-  //         "Content-type": "application/json",
-  //       },
-  //     });
-
-  //     router.push("/");
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
+    router.push("/");
+  } catch (error: any) {
+    if (error.response) {
+      responseMessage.value =
+        error.response.data.message || "Login failed. Please try again.";
+    } else if (error.request) {
+      responseMessage.value =
+        "No response from the server. Please check your network connection.";
+    } else {
+      responseMessage.value = "An unexpected error occurred. Please try again.";
+    }
+    console.error(error);
+  }
 };
 </script>
 
@@ -44,6 +52,7 @@ const handleLoginSubmit = async () => {
       <div class="card">
         <h2>Login</h2>
         <form class="card-form" @submit.prevent="handleLoginSubmit">
+          <span v-if="responseMessage.length > 0">{{ responseMessage }}</span>
           <div class="form-group">
             <label for="email">Email</label>
             <input
@@ -149,5 +158,10 @@ const handleLoginSubmit = async () => {
 
 .card-button:hover {
   background-color: #0056b3;
+}
+
+span {
+  color: red;
+  font-weight: bold;
 }
 </style>

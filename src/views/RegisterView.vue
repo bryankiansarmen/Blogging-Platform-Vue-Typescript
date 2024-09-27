@@ -17,8 +17,11 @@ const registerForm = ref<{
   confirmPassword: "",
 });
 
+const responseMessage = ref<string>("");
+
 const handleRegisterSubmit = async () => {
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
+    responseMessage.value = "Passwords do not match.";
     return;
   }
 
@@ -28,11 +31,9 @@ const handleRegisterSubmit = async () => {
     password: registerForm.value.password,
   };
 
-  console.log(newUser);
-
   try {
     await axios({
-      url: "http://192.168.4.35:8000/api/v1/user/register",
+      url: "http://192.168.4.35:8000/api/v1/users",
       method: "post",
       data: newUser,
       headers: {
@@ -41,8 +42,17 @@ const handleRegisterSubmit = async () => {
     });
 
     router.push("/login");
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    if (error.response) {
+      responseMessage.value =
+        error.response.data.message || "Registration failed. Please try again.";
+    } else if (error.request) {
+      responseMessage.value =
+        "No response from the server. Please check your network connection.";
+    } else {
+      responseMessage.value = "An unexpected error occurred. Please try again.";
+    }
+    console.error(error);
   }
 };
 </script>
@@ -54,6 +64,7 @@ const handleRegisterSubmit = async () => {
         <h2>Register</h2>
 
         <form class="card-form" @submit.prevent="handleRegisterSubmit">
+          <span v-if="responseMessage.length > 0">{{ responseMessage }}</span>
           <div class="form-group">
             <label for="name">Username</label>
             <input
@@ -182,5 +193,10 @@ const handleRegisterSubmit = async () => {
 
 .card-button:hover {
   background-color: #0056b3;
+}
+
+span {
+  color: red;
+  font-weight: bold;
 }
 </style>
