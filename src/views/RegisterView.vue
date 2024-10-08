@@ -33,7 +33,7 @@ const handleRegisterSubmit = async () => {
 
   try {
     await axios({
-      url: "http://192.168.4.35:8000/api/v1/users",
+      url: "http://192.168.4.35:8000/api/v1/auth/signup",
       method: "post",
       data: newUser,
       headers: {

@@ -1,10 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref } from "vue";
-import axios from "axios";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-const responseMessage = ref<string>("");
+import { useAuthStore } from "../stores/authStore";
 
 const loginForm = ref<{
   email: string;
@@ -14,6 +10,9 @@ const loginForm = ref<{
   password: "",
 });
 
+const authStore = useAuthStore();
+const responseMessage = ref<string | null>(null);
+
 const handleLoginSubmit = async () => {
   const userCredential = {
     email: loginForm.value.email,
@@ -21,16 +20,7 @@ const handleLoginSubmit = async () => {
   };
 
   try {
-    await axios({
-      url: "http://192.168.4.35:8000/api/v1/users/login",
-      method: "post",
-      data: userCredential,
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
-
-    router.push("/");
+    await authStore.login(userCredential);
   } catch (error: any) {
     if (error.response) {
       responseMessage.value =
@@ -52,7 +42,7 @@ const handleLoginSubmit = async () => {
       <div class="card">
         <h2>Login</h2>
         <form class="card-form" @submit.prevent="handleLoginSubmit">
-          <span v-if="responseMessage.length > 0">{{ responseMessage }}</span>
+          <span v-if="responseMessage != null">{{ responseMessage }}</span>
           <div class="form-group">
             <label for="email">Email</label>
             <input
