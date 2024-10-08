@@ -27,8 +27,6 @@ export const useAuthStore = defineStore("auth", {
           },
         });
 
-        console.log(response.data);
-
         const { token, expiration } = response.data;
 
         this.setToken(token, expiration);
@@ -41,19 +39,30 @@ export const useAuthStore = defineStore("auth", {
 
     setToken(token: string, expiration: number) {
       this.token = token;
-      this.expiration = Date.now() + expiration;
+      this.expiration = expiration;
 
-      sessionStorage.setItem("token", token);
-      sessionStorage.setItem("expiration", this.expiration.toString());
-
-      // set up automatic token refresh or logout
-      this.scheduleTokenRefresh(expiration);
+      // set up automatic token refresh
+      this.scheduleTokenRefresh(token, expiration);
     },
 
-    scheduleTokenRefresh(expiration: number) {
+    scheduleTokenRefresh(token: string, expiration: number) {
       const timeout = expiration - 5000; // 5 seconds before expiry
-      setTimeout(() => {
-        this.logout();
+
+      setTimeout(async () => {
+        try {
+          const response = await axios({
+            url: "http://192.168.4.35:8000/api/v1/auth/refresh",
+            method: "post",
+            data: { token: token },
+            headers: {
+              "Content-type": "application/json",
+            },
+          });
+
+          this.setToken(response.data.token, response.data.expiration);
+        } catch (error) {
+          throw new Error("Invalid or expired refresh token.");
+        }
       }, timeout);
     },
 
@@ -61,15 +70,11 @@ export const useAuthStore = defineStore("auth", {
       this.token = null;
       this.expiration = null;
 
-      // remove from sessionStorage
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("expiration");
-
       router.push({ name: "login" });
     },
 
     checkTokenExpiration() {
-      const tokenExpiration = Number(sessionStorage.getItem("expiration"));
+      const tokenExpiration = this.expiration;
       if (tokenExpiration && Date.now() >= tokenExpiration) {
         this.logout();
       }
