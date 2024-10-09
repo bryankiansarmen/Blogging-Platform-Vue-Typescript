@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { RouterLink, useRoute } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "../stores/authStore";
+
+const authStore = useAuthStore();
+const router = useRouter();
 
 const isActiveLink = (routePath: string) => {
   const route = useRoute();
   return route.path === routePath;
+};
+
+const logout = () => {
+  authStore.logout();
+  router.push({ name: "login" });
 };
 </script>
 
@@ -17,19 +26,22 @@ const isActiveLink = (routePath: string) => {
       </li>
     </ul>
     <ul class="nav-right">
-      <li>
+      <li v-if="!authStore.isAuthenticated">
         <RouterLink
           to="/login"
           :class="isActiveLink('/login') ? 'active' : null"
           >Login</RouterLink
         >
       </li>
-      <li>
+      <li v-if="!authStore.isAuthenticated">
         <RouterLink
           to="/register"
           :class="isActiveLink('/register') ? 'active' : null"
           >Register</RouterLink
         >
+      </li>
+      <li v-if="authStore.isAuthenticated">
+        <button @click="logout" class="logout-button">Logout</button>
       </li>
     </ul>
   </nav>
@@ -38,9 +50,9 @@ const isActiveLink = (routePath: string) => {
 <style lang="css" scoped>
 .navbar {
   width: 100%;
-  background-color: #007bff; /* Blue background to match card button */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow */
-  padding: 15px 20px; /* Added padding */
+  background-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -75,7 +87,22 @@ const isActiveLink = (routePath: string) => {
 }
 
 .navbar ul li a:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #0056b3;
+}
+
+.logout-button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #0056b3;
 }
 
 .active {

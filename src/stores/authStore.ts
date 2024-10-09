@@ -6,6 +6,7 @@ import router from "../routes";
 interface AuthState {
   token: string | null;
   expiration: number | null;
+  isAuthenticated: boolean;
 }
 
 // defining a store
@@ -13,7 +14,12 @@ export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     token: null,
     expiration: null,
+    isAuthenticated: false,
   }),
+
+  getters: {
+    isAuth: (state) => state.isAuthenticated,
+  },
 
   actions: {
     async login(credentials: { email: string; password: string }) {
@@ -27,11 +33,14 @@ export const useAuthStore = defineStore("auth", {
           },
         });
 
-        const { token, expiration } = response.data;
+        if (response.status == 200) {
+          const { token, expiration } = response.data;
 
-        this.setToken(token, expiration);
+          this.setToken(token, expiration);
+          this.isAuthenticated = true;
 
-        router.push({ name: "home" });
+          router.push({ name: "home" });
+        }
       } catch (error) {
         throw new Error("Invalid login credenetials.");
       }
@@ -59,7 +68,9 @@ export const useAuthStore = defineStore("auth", {
             },
           });
 
-          this.setToken(response.data.token, response.data.expiration);
+          if (response.status === 200) {
+            this.setToken(response.data.token, response.data.expiration);
+          }
         } catch (error) {
           throw new Error("Invalid or expired refresh token.");
         }
@@ -69,6 +80,7 @@ export const useAuthStore = defineStore("auth", {
     logout() {
       this.token = null;
       this.expiration = null;
+      this.isAuthenticated = false;
 
       router.push({ name: "login" });
     },
